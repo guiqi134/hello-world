@@ -106,10 +106,11 @@ class Food(models.Model):
 
 class Order(models.Model):
     order_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    total_price = models.DecimalField(max_digits=18, decimal_places=2, default=0)
     foods = models.ManyToManyField(Food)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
-    rider = models.ForeignKey(Rider, on_delete=models.CASCADE)
+    rider = models.ForeignKey(Rider, on_delete=models.CASCADE, null=True)
     start_time = models.TimeField(auto_now_add=True)
     end_time = models.TimeField(max_length=100, blank=True, null=True)
     order_status = models.IntegerField(choices=status, default=-1)

@@ -3,6 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         {% load static %}
         <link href="{% static 'css/cart.css' %}" rel="stylesheet" charset="utf-8">
@@ -10,45 +11,108 @@
     </head>
 
     <body>
-        {% csrf_token %}
         <header class="topbar">
             <div class="row" style="margin-left: 80.5px;margin-right: 80.5px">
                 <div class="col-3" style="padding-left: 0px">
                     <h1 style="
                             margin-top: 16px;
                             margin-bottom: 16px;
-                        ">欢迎回来！{{ request.session.user_name}}</h1>
+                            font-size: 2.4rem;
+                        ">欢迎回来！{{ request.session.user_name }}</h1>
                 </div>
                 <div class="col">
                     <a href="/index/" class="topbar-item topbar-homepage">首页</a>
-                    <a href="/index/myOrder/" class="topbar-item">我的订单</a>
-                    <a href="/index/shop-cart/" class="topbar-item">购物车</a>
+                    <a href="/index/customer_order/" class="topbar-item">我的订单</a>
+                    <a href="/index/cart/" class="topbar-item">购物车</a>
                 </div>
                 <div class="col" style="padding-right: 0px">
                     <a href="/logout/" class="topbar-item topbar-logout">登出</a> 
                 </div>
             </div>    
         </header>
-        <table>
-                <tr>
-                    <th>Product</th>
-                    <th>Quantity</th>
-                    <th>Total Price</th>
-                </tr>
-                {% for item in cart %}
-                <tr>
-                    <td>{{ item.product.FName }}</td>
-                    <td>{{ item.quantity }}</td>
-                    <td>{{ item.total_price }}</td>
-                </tr>
-                {% endfor %}
-        </table>
 
+        <div class="container main-container">
+            <div class='row cart-container'>
+                <div class='col-md-12' style="margin-top: 20px; margin-bottom: 20px;">
+                    <div class='panel panel-default'>
+                        <div class='panel-heading' align="center">
+                            <h3 style="font-size: 2.4rem;">欢迎光临外卖小店</h3>
+                            Welcome: {{ request.session.user_name }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class='row cart-container'>
+                <div class='col-sm-12' style="padding: 0px">
+                    <div class='panel panel-info'>
+                        <div style="border-bottom: 1px solid #e6e6e6;">
+                            <div class='panel panel-heading' style="
+                                margin: 20px 0px 20px 20px;
+                            ">
+                            <h4 style="font-size: 2.4rem;">我的购物车</h4>
+                            </div>
+                        </div>
+                        
+                        <div style="border-bottom: 1px solid #e6e6e6;">
+                        <div class='panel panel-body' style="
+                            margin: 40px 0px 20px 40px;
+                        ">
+                            {% for item in cart %}
+                            {% if forloop.first %}
+                            <table border=1>
+                                <tr>
+                                    <td width=300 align="center"><strong>食物名称</strong></td>
+                                    <td width=100 align="center"><strong>单价</strong></td>
+                                    <td width=100 align="center"><strong>数量</strong></td>
+                                    <td width=100 align="center"><strong>小计</strong></td>
+                                    <td width=100 align="center"><strong>删除</strong></td>
+                                </tr>
+                            {% endif %}
+                                <div class='listgroup'>
+                                    <div class='listgroup-item'>
+                                        <tr>
+                                            <td align="center">{{ item.product.FName }}</td>
+                                            <td align="center">{{ item.product.price }}</td>
+                                            <td align="center">{{ item.quantity }}</td>
+                                            <td align="center">{{ item.total_price }}</td>
+                                            <td align="center">
+                                                <a href="{{ item.product.get_absolute_url_delete }}"><span class="glyphicon glyphicon-trash"></span></a>
+                                            </td>
+                                        </tr>
+                                    </div>
+                                </div>
+                            {% if forloop.last %}
+                            </table>
+                            <div style="width: 701px;margin: 40px 0px 20px 0px;height: 38px;">
+                                <form action="/index/cart/" method="POST">
+                                    {% csrf_token %}
+                                    <button id="cart-submit" type="submit" class='btn btn-warning' style="float: right;color: #2d75f9;">下单</button>
+                                </form>
+                                
+                            </div>
+                            {% endif %}
+                            {% empty %}
+                                <em>购物车是空的</em>
+                            {% endfor %}
+                        </div>
+                        </div>
+                        <div class='panel panel-footer' style="margin: 20px 0px 20px 40px">
+                            总计：{{ cart.summary }}元
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if message %}
+        <div class="alert alert-warning">{{ message }}</div>
+        {% endif %}
         
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-        <script src="../static/scripts/index.js"></script>
+
     </body>
 </html>
 

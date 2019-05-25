@@ -28,8 +28,9 @@ urlpatterns = [
     path('rider/', views.rider, name='rider'),
     path('index/restaurant/<str:pk>/', views.restaurant_detail, name='restaurant-detail'),
     path('index/cart/', views.get_cart),
-    path('additem/<uuid:food_id>/', views.add_to_cart, name='additem'),
+    path('index/restaurant/guiqi1234/additem/<uuid:food_id>/', views.add_to_cart, name='additem'),
     path('index/cart/removeitem/<uuid:food_id>/', views.remove_from_cart, name='removeitem'),
+    path('index/customer_order/', views.customer_order, name='customer_order'),
 ]
 
 # Use include() to add paths from the catalog application 

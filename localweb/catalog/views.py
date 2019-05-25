@@ -4,6 +4,7 @@ from django.urls import reverse
 from catalog.models import Account, Customer, Restaurant, Rider, Food, Order
 from catalog import forms
 from cart.cart import Cart
+from cart import models
 import hashlib
 
 # Create your views here.
@@ -32,7 +33,6 @@ def index(request):
 def restaurant_detail(request, pk):
     restaurant_info = get_object_or_404(Restaurant, pk=pk)
     food_list = Food.objects.filter(RName=restaurant_info.RName)
-    request.session["current_url"] = 
 
     context = {
         'restaurant_info': restaurant_info,
@@ -43,11 +43,11 @@ def restaurant_detail(request, pk):
 
 
 def add_to_cart(request, food_id):
-    print('ok')
     food = Food.objects.get(food_id=food_id)
     cart = Cart(request)
     cart.add(food, food.price, quantity=1)
-    return redirect('/')
+    return redirect(request.META.get('HTTP_REFERER'))
+
 
 def remove_from_cart(request, food_id):
     food = Food.objects.get(food_id=food_id)
@@ -55,8 +55,66 @@ def remove_from_cart(request, food_id):
     cart.remove(food)
     return redirect('/index/cart/')
 
+
 def get_cart(request):
-    return render(request, 'cart.html', {'cart': Cart(request)})
+    message = ''
+
+    if request.POST:
+        # 下单食物数量减少，创建order,购物车清空
+        cart_id = request.session.get('CART-ID')
+
+        # 下单的食物count数量减少
+        items = models.Item.objects.filter(cart_id=cart_id).values('quantity', 'unit_price', 'object_id')
+        total_price = 0
+        food_list = []
+        rest_set = set()  # check if there more than one restaurant
+        for item in items:
+            food_id = item['object_id']
+            total_price += item['quantity'] * item['unit_price']
+            food = Food.objects.get(food_id=food_id)
+            rest_set.add(food.RName)
+
+        if len(rest_set) != 1:
+            message = '商家必须相同'
+        else:
+            for item in items:
+                food_id = item['object_id']
+                food = Food.objects.get(food_id=food_id)
+                food.count -= 1
+                food_list.append(food)
+
+            # 成功下单的cart
+            cart = models.Cart.objects.filter(id=cart_id)
+            cart.checked_out = True
+            
+            # 创建order
+            new_order = Order()
+            customer_id = Account.objects.get(AName=request.session['user_name'])
+            new_order.total_price = total_price
+            new_order.save()
+            new_order.foods.add(*food_list)
+            print(customer_id)
+            new_order.restaurant_id = list(rest_set)[0]
+            new_order.customer_id = customer_id
+            new_order.save()
+
+            # 购物车清空
+            request.session['CART-ID'] = False
+            new_cart = Cart(request)
+
+            return redirect('/index/customer_order/')
+    
+    context = {
+        'cart': Cart(request),
+        'message': message
+    }
+
+    return render(request, 'cart.html', context=context)
+
+
+def customer_order(request):
+    pass
+    return render(request, 'customer_order.html')
 
 
 def login(request):
@@ -68,6 +126,7 @@ def login(request):
         return redirect('/index/')
 
     if request.method == 'POST':
+        print('login post ok')
         login_form = forms.LoginForm(request.POST)
         if login_form.is_valid():
             username = login_form.cleaned_data.get('username')
