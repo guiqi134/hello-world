@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        {% load static %}
+        <link href="{% static 'css/restaurant_detail.css' %}" rel="stylesheet" charset="utf-8">
+        <title>主页</title>
+    </head>
+
+    <body>
+        {% csrf_token %}
+        <header class="topbar">
+            <div class="row" style="margin-left: 80.5px;margin-right: 80.5px">
+                <div class="col-3" style="padding-left: 0px">
+                    <h1 style="
+                            margin-top: 16px;
+                            margin-bottom: 16px;
+                        ">欢迎回来！{{ request.session.user_name}}</h1>
+                </div>
+                <div class="col">
+                    <a href="/index/" class="topbar-item topbar-homepage">首页</a>
+                    <a href="/index/myOrder/" class="topbar-item">我的订单</a>
+                    <a href="/index/cart/" class="topbar-item">购物车</a>
+                </div>
+                <div class="col" style="padding-right: 0px">
+                    <a href="/logout/" class="topbar-item topbar-logout">登出</a> 
+                </div>
+            </div>    
+        </header>
+
+        <div class="container main-container info-container" style="height: 180px;">
+            <div class="rest_image-container">
+                <img src="{{ MEDIA_URL }}{{ restaurant_info.RImage }}" style="width: 140px; height: 140px;">
+            </div>
+            <div class="rest_name-container">
+                <div class="rest_name">
+                    {{ restaurant_info.RName }}
+                </div>
+                <div class="rating">
+                    评分:
+                </div>
+            </div>
+
+            <div class="food-container">
+                <h2 style="margin-bottom: 40px;">全部美食:</h2>
+                <div class="clearfix">
+                    {% for food in food_list %}
+                    <div class="food-box">
+                        <div class="food-image" style="float: left;padding-right: 40px;">
+                            <img src="{{ MEDIA_URL }}{{ food.FImage }}" style="width: 119px;height: 119px;">
+                        </div>
+                        <div class="food-info" style="height: 120px;padding-top: 10px;">
+                            <div class="food-name">{{ food.FName }}</div>
+                            <span style="color:red;padding-right: 30px;">¥ {{ food.price }}</span>
+                            <span style="color: #666;">剩余: {{ food.count }}</span>
+                            <button class="shop-cartbutton">
+                                <a href="{{ food.get_absolute_url_add }}" style="color: #fff">加入购物车</a>
+                            </button>
+                        </div>
+                            
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+            
+
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    </body>
+</html>
