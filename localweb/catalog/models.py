@@ -87,7 +87,7 @@ class Food(models.Model):
     FName = models.CharField(max_length=128)
     RName = models.ForeignKey(Restaurant, on_delete=models.CASCADE, to_field='RName')
     price = models.FloatField(max_length=1000)
-    count = models.IntegerField()
+    count = models.PositiveIntegerField()
     FImage = models.ImageField(upload_to='food_image', blank=True)
 
     class Meta:
@@ -108,14 +108,15 @@ class Order(models.Model):
     order_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     total_price = models.DecimalField(max_digits=18, decimal_places=2, default=0)
     foods = models.ManyToManyField(Food)
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True)
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, null=True, to_field='RName')
     rider = models.ForeignKey(Rider, on_delete=models.CASCADE, null=True)
     start_time = models.TimeField(auto_now_add=True)
     end_time = models.TimeField(max_length=100, blank=True, null=True)
-    order_status = models.IntegerField(choices=status, default=-1)
+    order_status = models.CharField(max_length=128, choices=status, default='未起送')
     rest_rating = models.FloatField(max_length=100, default=-1)
     rider_rating = models.FloatField(max_length=100, default=-1)
+    address = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
         ordering = ['start_time']

@@ -35,3 +35,7 @@ class RegisterForm(forms.Form):
 
 class IndexForm(forms.Form):
     rest_search = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '搜索商家', 'style': 'width: 250px;'}))
+
+
+class RestaurantForm(forms.Form):
+    rest_name = forms.CharField(max_length=128, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '商家名称'}))

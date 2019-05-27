@@ -36,7 +36,7 @@
                             <div class='panel panel-heading' style="
                                 margin: 20px 0px 20px 20px;
                             ">
-                            <h4>订单列表</h4>
+                            <h4>配送列表</h4>
                             </div>
                         </div>
                         
@@ -49,12 +49,13 @@
                                 <table border=1>
                                     <tr>
                                         <td width=200 align="center"><strong>订单编号</strong></td>
-                                        <td width=120 align="center"><strong>配送地址</strong></td>
-                                        <td width=120 align="center"><strong>顾客</strong></td>
-                                        <td width=120 align="center"><strong>商家</strong></td>
-                                        <td width=120 align="center"><strong>骑手</strong></td>
-                                        <td width=120 align="center"><strong>下单时间</strong></td>
-                                        <td width=120 align="center"><strong>是否接单</strong></td>
+                                        <td width=100 align="center"><strong>配送地址</strong></td>
+                                        <td width=100 align="center"><strong>顾客</strong></td>
+                                        <td width=100 align="center"><strong>商家</strong></td>
+                                        <td width=100 align="center"><strong>骑手</strong></td>
+                                        <td width=100 align="center"><strong>下单时间</strong></td>
+                                        <td width=100 align="center"><strong>送达时间</strong></td>
+                                        <td width=100 align="center"><strong>是否送达</strong></td>
                                     </tr>
                                 {% endif %}
                                     <div class='listgroup'>
@@ -67,14 +68,15 @@
                                                 <td align="center">{{ order.restaurant_id }}</td>
                                                 <td align="center">{{ order.rider_id }}</td>
                                                 <td align="center">{{ order.start_time }}</td>
+                                                <td align="center">{{ order.end_time }}</td>
                                                 <td align="center">
-                                                    <a href="/rider/" class="take_order">接单!</a>
+                                                    <a href="/rider/rider_order" class="take_order">送达!</a>
                                                 </td>
                                             </tr>
                                         </div>
                                     </div>
                                 {% empty %}
-                                    <em>无订单</em>
+                                    <em>无配单</em>
                                 {% endfor %}
                                 </table>
                             </div>
@@ -88,7 +90,7 @@
         <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
         <script src="https://cdn.bootcss.com/popper.js/1.15.0/umd/popper.js"></script>
         <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
-        <script src="../static/scripts/rider.js"></script>
+        <script src="{% static 'scripts/rider_order.js' %}"></script>
     </body>
 </html>
 

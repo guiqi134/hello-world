@@ -10,7 +10,6 @@
     </head>
 
     <body>
-        {% csrf_token %}
         <header class="topbar">
             <div class="row" style="margin-left: 80.5px;margin-right: 80.5px">
                 <div class="col-3" style="padding-left: 0px">
@@ -46,50 +45,55 @@
                             <div class='panel panel-body' style="
                                 margin: 40px 0px 20px 40px;
                             ">
-                                {% for item in cart %}
+                                {% for order in orders %}
                                 {% if forloop.first %}
                                 <table border=1>
                                     <tr>
-                                        <td width=300 align="center"><strong>订单编号</strong></td>
-                                        <td width=100 align="center"><strong>顾客</strong></td>
-                                        <td width=100 align="center"><strong>商家</strong></td>
-                                        <td width=100 align="center"><strong>骑手</strong></td>
-                                        <td width=100 align="center"><strong>下单时间</strong></td>
-                                        <td width=100 align="center"><strong>送达时间</strong></td>
-                                        <td width=100 align="center"><strong>订单状态</strong></td>
-                                        <td width=100 align="center"><strong>商家评分</strong></td>
-                                        <td width=100 align="center"><strong>骑手评分</strong></td>
+                                        <td width=150 align="center"><strong>订单编号</strong></td>
+                                        <td width=80 align="center"><strong>配送地址</strong></td>
+                                        <td width=80 align="center"><strong>顾客</strong></td>
+                                        <td width=80 align="center"><strong>商家</strong></td>
+                                        <td width=80 align="center"><strong>骑手</strong></td>
+                                        <td width=80 align="center"><strong>下单时间</strong></td>
+                                        <td width=80 align="center"><strong>送达时间</strong></td>
+                                        <td width=80 align="center"><strong>订单状态</strong></td>
+                                        <td width=80 align="center"><strong>商家评分</strong></td>
+                                        <td width=80 align="center"><strong>骑手评分</strong></td>
                                     </tr>
                                 {% endif %}
                                     <div class='listgroup'>
                                         <div class='listgroup-item'>
                                             <tr>
-                                                <td align="center">{{ item.product.FName }}</td>
-                                                <td align="center">{{ item.product.price }}</td>
-                                                <td align="center">{{ item.quantity }}</td>
-                                                <td align="center">{{ item.total_price }}</td>
-                                                <td align="center">
-                                                    <a href="{{ item.product.get_absolute_url_delete }}"><span class="glyphicon glyphicon-trash"></span></a>
-                                                </td>
+                                                {% csrf_token %}
+                                                <td class="order_id" align="center">{{ order.order_id }}</td>
+                                                <td align="center">{{ order.address }}</td>
+                                                <td align="center">{{ order.customer_id }}</td>
+                                                <td align="center">{{ order.restaurant_id }}</td>
+                                                <td align="center">{{ order.rider_id }}</td>
+                                                <td align="center">{{ order.start_time }}</td>
+                                                <td align="center">{{ order.end_time }}</td>
+                                                <td align="center">{{ order.order_status }}</td>
+                                                <td align="center"><a href="javascript:void(0)" class="change_rest">{{ order.rest_rating }}</a></td>
+                                                <td align="center"><a href="javascript:void(0)" class="change_rider">{{ order.rider_rating }}</a> </td>
                                             </tr>
                                         </div>
                                     </div>
-                                </table>
                                 {% empty %}
                                     <em>无订单</em>
                                 {% endfor %}
+                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        
-        
-        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
+        
+        <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+        <script src="https://cdn.bootcss.com/popper.js/1.15.0/umd/popper.js"></script>
+        <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <script src="{% static 'scripts/customer_order.js' %}"></script>
     </body>
 </html>
 

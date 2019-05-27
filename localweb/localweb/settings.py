@@ -89,6 +89,7 @@ DATABASES = {
         'PASSWORD': 'qq656245',  # 密码
         'HOST': '127.0.0.1',  # mysql服务所在的主机ip
         'PORT': '3306',         # mysql服务端口
+        'OPTIONS': {"init_command": "SET foreign_key_checks = 0;"},
     }
 }
 
@@ -148,3 +149,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+SECURE_SSL_REDIRECT = False

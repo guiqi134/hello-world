@@ -1,10 +1,13 @@
 from django.shortcuts import render
 from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import HttpResponse
 from django.urls import reverse
 from catalog.models import Account, Customer, Restaurant, Rider, Food, Order
+from django.views.decorators.csrf import csrf_exempt,csrf_protect
 from catalog import forms
 from cart.cart import Cart
 from cart import models
+import time
 import hashlib
 
 # Create your views here.
@@ -17,14 +20,26 @@ def hash_code(s, salt='mysite'):
     return h.hexdigest()
 
 
+@csrf_exempt
 def index(request):
-    index_form = forms.IndexForm()
-    rest_list = Restaurant.objects.all().exclude(RName__isnull=True)
     if not request.session.get('is_login', None):
         return redirect('/login/')
+
+    index_form = forms.IndexForm()
+    rest_list = Restaurant.objects.all().exclude(RName__isnull=True)
+    customer_info = Customer.objects.get(AName=request.session['user_name'])
+
+    if request.POST.get('click', False): # check if called by click
+        address = request.POST.get('address')
+        customer = Customer.objects.get(AName_id=request.session['user_name'])
+        customer.address = address
+        customer.save()
+        return HttpResponse(address)
+
     context = {
         'index_form': index_form,
-        'rest_list': rest_list
+        'rest_list': rest_list,
+        'customer_info': customer_info
     }
 
     return render(request, 'index.html', context=context)
@@ -32,7 +47,7 @@ def index(request):
 
 def restaurant_detail(request, pk):
     restaurant_info = get_object_or_404(Restaurant, pk=pk)
-    food_list = Food.objects.filter(RName=restaurant_info.RName)
+    food_list = Food.objects.filter(RName=restaurant_info.RName).exclude(count=0)
 
     context = {
         'restaurant_info': restaurant_info,
@@ -82,20 +97,22 @@ def get_cart(request):
                 food = Food.objects.get(food_id=food_id)
                 food.count -= 1
                 food_list.append(food)
+                food.save()
 
             # 成功下单的cart
-            cart = models.Cart.objects.filter(id=cart_id)
+            cart = models.Cart.objects.get(id=cart_id)
             cart.checked_out = True
+            cart.save()
             
             # 创建order
             new_order = Order()
-            customer_id = Account.objects.get(AName=request.session['user_name'])
+            customer_id = Customer.objects.get(AName=request.session['user_name'])
             new_order.total_price = total_price
             new_order.save()
             new_order.foods.add(*food_list)
-            print(customer_id)
             new_order.restaurant_id = list(rest_set)[0]
             new_order.customer_id = customer_id
+            new_order.address = Customer.objects.filter(AName=request.session['user_name']).values('address')[0]['address']
             new_order.save()
 
             # 购物车清空
@@ -112,9 +129,27 @@ def get_cart(request):
     return render(request, 'cart.html', context=context)
 
 
+@csrf_exempt
 def customer_order(request):
-    pass
-    return render(request, 'customer_order.html')
+    orders = Order.objects.filter(customer_id=request.session['user_name'])
+
+    if request.POST.get('status') == 'restaurant':
+        rest_rating = float(request.POST.get('rest_rating'))
+        order_id = request.POST.get('order_id')
+        order = Order.objects.get(order_id=order_id)
+        order.rest_rating = rest_rating
+        order.save()
+        return HttpResponse(rest_rating)
+
+    elif request.POST.get('status') == 'rider':
+        rider_rating = float(request.POST.get('rider_rating'))
+        order_id = request.POST.get('order_id')
+        order = Order.objects.get(order_id=order_id)
+        order.rider_rating = rider_rating
+        order.save()
+        return HttpResponse(rider_rating)
+
+    return render(request, 'customer_order.html', {'orders': orders})
 
 
 def login(request):
@@ -122,11 +157,8 @@ def login(request):
     message = ''
     redirect_page = ''
 
-    if request.session.get('is_login', None):  # 不允许重复登录
-        return redirect('/index/')
 
     if request.method == 'POST':
-        print('login post ok')
         login_form = forms.LoginForm(request.POST)
         if login_form.is_valid():
             username = login_form.cleaned_data.get('username')
@@ -139,7 +171,7 @@ def login(request):
                     request.session['account_type'] = user.account_type
                     if user.account_type == 'customer':
                         customer = Customer.objects.get(AName_id=user.AName)
-                        request.session['address'] = customer.address
+                        # request.session['address'] = customer.address
                         redirect_page = '/index/'
                     elif user.account_type == 'restaurant':
                         redirect_page = '/restaurant/'
@@ -248,11 +280,100 @@ def get_password(request):
     return render(request, 'get_password.html')
 
 
+@csrf_exempt
 def restaurant(request):
-    pass
-    return render(request, 'restaurant.html')
+    rest_info = Restaurant.objects.get(AName_id=request.session['user_name'])
+    rest_name = Restaurant.objects.filter(AName_id=request.session['user_name']).values('RName')[0]['RName']
+    request.session['rest_name'] = rest_name
+    rest_foods = Food.objects.filter(RName_id=rest_name).exclude(count=0)
+    rest_ratings = Order.objects.filter(restaurant_id=rest_name).values('rest_rating')
+
+    rating_list = []
+    for rest_rating in rest_ratings:
+        rating = rest_rating['rest_rating']
+        if rating != -1:
+            rating_list.append(rating)
+    if len(rating_list) == 0:
+        avg_rating = 0
+    else:
+        avg_rating = sum(rating_list) / len(rating_list)
+
+    # 更改商家信息
+    if request.POST.get('status') == 'change_FName':
+        change_FName = request.POST.get('food_name')
+        food_id = request.POST.get('food_id')
+        food = Food.objects.get(food_id=food_id)
+        food.FName = change_FName
+        food.save()
+        return HttpResponse(change_FName)
+
+    elif request.POST.get('status') == 'change_price':
+        change_price = request.POST.get('food_price')
+        food_id = request.POST.get('food_id')
+        food = Food.objects.get(food_id=food_id)
+        food.price = change_price
+        food.save()
+        return HttpResponse(change_price)
+    
+    elif request.POST.get('status') == 'change_count':
+        change_count = request.POST.get('food_count')
+        food_id = request.POST.get('food_id')
+        food = Food.objects.get(food_id=food_id)
+        food.count = change_count
+        food.save()
+        return HttpResponse(change_count)
+
+    context = {
+        'rest_info': rest_info,
+        'rest_foods': rest_foods,
+        'rest_rating': avg_rating,
+    }
+
+    return render(request, 'restaurant.html', context=context)
 
 
+@csrf_exempt
+def restaurant_order(request):
+    orders = Order.objects.filter(restaurant_id=request.session['rest_name'])
+
+    if request.POST.get('status') == 'change_status':
+        order_status = request.POST.get('order_status')
+        order_id = request.POST.get('order_id')
+        order = Order.objects.get(order_id=order_id)
+        order.order_status = order_status
+        order.save()
+        return HttpResponse(order_status)
+
+    return render(request, 'restaurant_order.html', {'orders': orders})
+
+
+@csrf_exempt
 def rider(request):
-    pass
-    return render(request, 'rider.html')
+    orders = Order.objects.filter(order_status='未起送')
+    
+    if request.POST.get('status') == 'take_order':
+        order_id = request.POST.get('order_id')
+        order = Order.objects.get(order_id=order_id)
+        order.rider_id = request.session['user_name']
+        order.order_status = '正在配送'
+        order.save()
+        return HttpResponse()
+    
+    return render(request, 'rider.html', {'orders': orders})
+
+
+@csrf_exempt
+def rider_order(request):
+    orders = Order.objects.filter(rider_id=request.session['user_name'])
+
+    if request.POST.get('status') == 'end_order':
+        order_id = request.POST.get('order_id')
+        order = Order.objects.get(order_id=order_id)
+        order.order_status = '已送达'
+        # HH:MM[:ss[.uuuuuu]]
+        now = time.strftime("%H:%M[:%S[.%f]]", time.localtime(time.time()))
+        order.end_time = now
+        order.save()
+        return HttpResponse()
+
+    return render(request, 'rider_order.html', {'orders': orders})

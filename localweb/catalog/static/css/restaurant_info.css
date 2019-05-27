@@ -1,0 +1,118 @@
+.form-register {
+    width: 100%;
+    max-width: 400px;
+    padding: 15px;
+    margin: 0 auto;
+  }
+  .form-group {
+    margin-bottom: 5px;
+  }
+  form a{
+    display: inline-block;
+    margin-top:25px;
+    line-height: 10px;
+  }
+  .form-control {
+    color: #212529;
+  }
+  body {
+    background-color: #f7f7f7;
+}
+a:hover {
+    text-decoration: none;
+}
+.main-container {
+    margin-left: 80.5px;
+    margin-right: 80.5px;
+    padding-left: 0px;
+    padding-right: 0px;
+    max-width: 1200px;
+}
+.topbar {
+    display: block;
+    line-height: 60px;
+    background-color: #1e89e0;
+}
+.topbar-item.topbar-homepage {
+    width: 112px!important;
+}
+.topbar-item.topbar-logout {
+    float: right!important;
+}
+.topbar-item {
+    font-size: 16px;
+    position: relative;
+    color: #fff;
+    width: 104px;
+    text-align: center;
+    float: left;
+}
+h1 {
+    font-size: 1.5rem;
+    color: #fff;
+}
+/* the above is the base css */
+.rest_image-container {
+    width: 260px;
+    height: 180px;
+    padding: 20px 60px 20px 60px;
+    float: left;
+}
+.rest_name-container {
+    height: 180px;
+    line-height: 90px;
+    color: #fff;
+}
+.rest_name {
+    font-size: 2rem;
+    font-weight: 600;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.info-container {
+    background-image: url(../image/others/shop-bg.0391dd.jpg);
+    margin: 0px;
+    padding-left: 80.5px;
+    max-width: 1391px;
+}
+.food-container {
+    margin-top: 40px;
+    max-width: 1200px;
+    margin-bottom: 70px;
+}
+.food-box {
+    width: 31.5%;
+    height: 121px;
+    background: #fff;
+    border: 1px solid #e6e6e6;
+    float: left;
+    margin-bottom: 12px;
+    margin-right: 18px;
+}
+.shop-cartbutton {
+    display: inline-block;
+    background-color: #0089dc;
+    right: 10px;
+    bottom: 10px;
+    border: 0;
+    cursor: pointer;
+    max-width: 150px;
+    height: 26px;
+    line-height: 26px;
+    border-radius: 20px;
+    text-align: center;
+    outline: 0;
+    padding-left: 15px;
+    padding-right: 15px;
+    margin-top: 10px;
+}
+.food-name {
+    font-size: 1.5rem;
+    margin-bottom: .5rem;
+    font-weight: 500;
+    line-height: 1.2;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
